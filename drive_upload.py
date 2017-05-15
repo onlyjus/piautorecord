@@ -1,16 +1,42 @@
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
+import glob
+import os
+import time
+
+RECORDING_DIR = './recordings'
+UPLOADED_FILE = './uploaded.csv'
+FID = '0B9DYSBa2wgiAaVBGZm5TenhBYlk' 
+
 
 gauth = GoogleAuth()
-drive = GoogleDrive(gauth)
-fid = '0B9DYSBa2wgiAaVBGZm5TenhBYlk'
-f = drive.CreateFile({"parents": [{"kind": "drive#fileLink", "id": fid}]})
-# Read file and set it as a content of this instance.
-f.SetContentFile('./recordings/2017-04-08_23-01-40.mp3')
-f.Upload() 
+gauth.LocalWebserverAuth()
+DRIVE = GoogleDrive(gauth)
 
-print('title: %s, mimeType: %s' % (f['title'], f['mimeType']))
+def upload():
+    '''search for and upload files to drive '''
 
-#file_list = drive.ListFile({'q': "'root' in parents and trashed=false"}).GetList()
-#for file1 in file_list:
-#  print('title: %s, id: %s' % (file1['title'], file1['id']))
+    # search for new files
+    found = set(glob.glob(os.path.join(RECORDING_DIR,'*.mp3')))
+    uploaded = set()
+    if os.path.exists(UPLOADED_FILE):
+        with open(UPLOADED_FILE) as up_file:
+            uploaded = set(up_file.read().split(','))
+
+    new_files = found - uploaded
+    for new_f in new_files:
+        f = DRIVE.CreateFile({"parents": [{"kind": "drive#fileLink", "id": FID}]})
+        # Read file and set it as a content of this instance.
+        f.SetContentFile(new_f)
+        f.Upload() 
+
+	print('uploaded title: %s, mimeType: %s' % (f['title'], f['mimeType']))
+
+
+    # save the new uploaded files
+    with open(UPLOADED_FILE, 'w') as up_file:
+        up_file.write(','.join(found.union(uploaded)))
+
+while True:
+    upload()
+    time.sleep(1)

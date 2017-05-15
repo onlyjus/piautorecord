@@ -3,7 +3,7 @@
 This repository provides a script, `autorecord.sh` that will automatically
 record when sound is detected and stop when sound is no longer detected.
 Recorded files are then uploaded to google drive. This project was create to
-automatically record and upload recordings from a mixer of a worship service. 
+automatically record and upload recordings from a mixer. 
 
 # Dependencies
 
@@ -40,7 +40,18 @@ Once the repository has been download, change to the directory:
 cd piautorecord
 ```
 
+Make sure to follow the configuration steps outlined below. Start the script
+with:
 
+```
+./autorecord.sh
+```
+
+Note: you may need to change the permissions on the script:
+
+```
+chmod +x autorecord.sh
+```
 
 # Configuration
 
@@ -53,7 +64,7 @@ to be correctly configured. Try the included state file with:
 alsactl --file ./asound.state restore
 ```
 
-You can use te alsamixer to make configuration chanages:
+You can use te alsamixer to make configuration changes:
 
 ```
 alsamixer
