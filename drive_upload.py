@@ -7,10 +7,20 @@ import time
 RECORDING_DIR = './recordings'
 UPLOADED_FILE = './uploaded.csv'
 FID = '0B9DYSBa2wgiAaVBGZm5TenhBYlk' 
-
+CRED_FILE = 'mycreds.txt'
 
 gauth = GoogleAuth()
-gauth.LocalWebserverAuth()
+# try to load credentials
+gauth.LoadCredentialsFile(CRED_FILE)
+if gauth.credentials is None:
+    gauth.LocalWebserverAuth()
+elif gauth.access_token_expired:
+    gauth.Refresh()
+else:
+    gauth.Authorize()
+# save creds to file
+gauth.SaveCredentialsFile(CRED_FILE)
+
 DRIVE = GoogleDrive(gauth)
 
 def upload():
@@ -39,4 +49,4 @@ def upload():
 
 while True:
     upload()
-    time.sleep(1)
+    time.sleep(10)
