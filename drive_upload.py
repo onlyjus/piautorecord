@@ -13,7 +13,7 @@ hdlr = logging.FileHandler('./drive_upload.log')
 formatter = logging.Formatter('%(asctime)s %(message)s')
 hdlr.setFormatter(formatter)
 LOGGER.addHandler(hdlr)
-LOGGER.setLevel(logging.INFO)
+LOGGER.setLevel(logging.ERROR)
 
 def my_handler(type, value, tb):
     LOGGER.exception('Exception: {0}'.format(str(value)))
@@ -67,7 +67,17 @@ def upload():
     with open(UPLOADED_FILE, 'w') as up_file:
         up_file.write(','.join(found.union(uploaded)))
 
+def remove_files():
+    found = set(glob.glob(os.path.join(RECORDING_DIR, '*.mp3')))
+
+    cur_time = time.time()
+    for f in found:
+        created = os.path.getmtime(f)
+        if cur_time - created > 30*24*60*60:
+            os.remove(f)
+
 
 if __name__ == '__main__':
     LOGGER.info('Searching for new files')
     upload()
+    remove_files()
