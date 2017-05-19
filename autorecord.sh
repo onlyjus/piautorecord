@@ -2,9 +2,6 @@
 # first restore the alsa mixer
 alsactl --file ./asound.state restore
 
-# start drive upload
-(python drive_upload.py &)
-
 # stop sox
 pkill sox
 

@@ -1,14 +1,33 @@
+#!/usr/bin/python
 from pydrive.auth import GoogleAuth
 from pydrive.drive import GoogleDrive
 import glob
 import os
 import time
+import logging
+import sys
+
+# setup logger
+LOGGER = logging.getLogger('drive_upload')
+hdlr = logging.FileHandler('./drive_upload.log')
+formatter = logging.Formatter('%(asctime)s %(message)s')
+hdlr.setFormatter(formatter)
+LOGGER.addHandler(hdlr)
+LOGGER.setLevel(logging.INFO)
+
+def my_handler(type, value, tb):
+    LOGGER.exception('Exception: {0}'.format(str(value)))
+
+sys.excepthook = my_handler
 
 RECORDING_DIR = './recordings'
 UPLOADED_FILE = './uploaded.csv'
-FID = '0B9DYSBa2wgiAaVBGZm5TenhBYlk' 
-CRED_FILE = 'mycreds.txt'
 
+# folder id
+FID = '0B9DYSBa2wgiAaVBGZm5TenhBYlk' 
+CRED_FILE = 'credentials.json'
+
+LOGGER.info('authenticating')
 gauth = GoogleAuth()
 # try to load credentials
 gauth.LoadCredentialsFile(CRED_FILE)
@@ -35,18 +54,20 @@ def upload():
 
     new_files = found - uploaded
     for new_f in new_files:
+        LOGGER.info('Uploading new file {}'.format(new_f))
         f = DRIVE.CreateFile({"parents": [{"kind": "drive#fileLink", "id": FID}]})
         # Read file and set it as a content of this instance.
         f.SetContentFile(new_f)
         f.Upload() 
 
-	print('uploaded title: %s, mimeType: %s' % (f['title'], f['mimeType']))
+	LOGGER.info('Uploaded title: %s, mimeType: %s' % (f['title'], f['mimeType']))
 
 
     # save the new uploaded files
     with open(UPLOADED_FILE, 'w') as up_file:
         up_file.write(','.join(found.union(uploaded)))
 
-while True:
+
+if __name__ == '__main__':
+    LOGGER.info('Searching for new files')
     upload()
-    time.sleep(10)

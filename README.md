@@ -81,3 +81,22 @@ alsactl --file ./asound.state store
 Please follow the configuration instructions at
 [PyDrive](https://googledrive.github.io/PyDrive/docs/build/html/quickstart.html#authentication)
 to generate the `client_secrets.json` file and place it in this directory.
+
+Edit the `settings.ymal` file to add your `client_id` and `client_secret`. The values are in
+the `client_secrets.json` file.
+
+# Crontab
+
+Crontab can be used to automatically run the scripts. Edit crontab:
+
+```
+crontab -e
+```
+
+Add the following lines to the end of the file:
+```
+PATH=/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/home/pi
+SHELL=/bin/bash
+@reboot cd path/to/piautorecord && ./autorecord.sh
+* * * * * cd path/to/piautorecord && ./drive_upload.py 
+```
